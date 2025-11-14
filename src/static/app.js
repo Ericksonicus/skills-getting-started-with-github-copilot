@@ -105,4 +105,42 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize app
   fetchActivities();
+
+  // Handle unsign button click
+  const unsignBtn = document.getElementById("unsign-btn");
+  unsignBtn.addEventListener("click", async () => {
+    const email = document.getElementById("email").value;
+    const activity = document.getElementById("activity").value;
+    if (!email || !activity) {
+      messageDiv.textContent = "Please enter both email and select an activity to unsign.";
+      messageDiv.className = "error";
+      messageDiv.classList.remove("hidden");
+      setTimeout(() => {
+        messageDiv.classList.add("hidden");
+      }, 4000);
+      return;
+    }
+    try {
+      const response = await fetch(`/activities/${encodeURIComponent(activity)}/unregister?email=${encodeURIComponent(email)}`, {
+        method: "POST"
+      });
+      const result = await response.json();
+      if (response.ok) {
+        messageDiv.textContent = result.message || "Participant removed.";
+        messageDiv.className = "success";
+        signupForm.reset();
+        fetchActivities();
+      } else {
+        messageDiv.textContent = result.detail || "Failed to remove participant.";
+        messageDiv.className = "error";
+      }
+    } catch (error) {
+      messageDiv.textContent = "Error removing participant.";
+      messageDiv.className = "error";
+    }
+    messageDiv.classList.remove("hidden");
+    setTimeout(() => {
+      messageDiv.classList.add("hidden");
+    }, 4000);
+  });
 });
